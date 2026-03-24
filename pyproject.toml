@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "dir-agent-profile"
+version = "0.1.0"
+description = "Directory-level model role profile manager for Oh My Pi"
+requires-python = ">=3.9"
+dependencies = [
+    "PyYAML>=6.0",
+    "questionary>=2.0",
+]
+
+[project.scripts]
+dir-agent-profile = "dir_agent_profile.cli:main"
