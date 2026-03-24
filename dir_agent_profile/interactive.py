@@ -72,18 +72,19 @@ def _create_new(existing_profiles: dict) -> None:
 
 def _assign_roles(models: list[str]) -> dict[str, str] | None:
     """Walk through ROLES with back navigation. Returns assignments or None on cancel."""
-    # Group models by provider, preserving order.
-    # models are 'provider/model' strings sorted by provider then model.
+    # Group models by provider once; fresh Choice objects are built each iteration
+    # because questionary mutates them in-place (shortcut key assignment).
     grouped: list[tuple[str, list[str]]] = []
     for provider, group in groupby(models, key=lambda m: m.split("/", 1)[0]):
         grouped.append((provider, list(group)))
 
-    # Pre-build grouped choices (reused each prompt iteration).
-    grouped_choices: list = []
-    for provider, provider_models in grouped:
-        grouped_choices.append(questionary.Separator(f"── {provider} ──"))
-        for model_id in provider_models:
-            grouped_choices.append(questionary.Choice(model_id, value=model_id))
+    def _build_model_choices() -> list:
+        choices: list = []
+        for provider, provider_models in grouped:
+            choices.append(questionary.Separator(f"\u2500\u2500 {provider} \u2500\u2500"))
+            for model_id in provider_models:
+                choices.append(questionary.Choice(model_id, value=model_id))
+        return choices
 
     i = 0
     assignments: dict[str, str] = {}
@@ -100,7 +101,7 @@ def _assign_roles(models: list[str]) -> dict[str, str] | None:
         choices: list = []
         if i > 0:
             choices.append(questionary.Choice("\u2190 Back", value="__BACK__"))
-        choices.extend(grouped_choices)
+        choices.extend(_build_model_choices())
 
         default = assignments.get(role)
         answer = questionary.select(
