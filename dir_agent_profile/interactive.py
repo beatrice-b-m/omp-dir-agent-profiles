@@ -108,6 +108,7 @@ def _assign_roles(models: list[str]) -> dict[str, str] | None:
             choices=choices,
             default=default,
             use_search_filter=True,
+            use_jk_keys=False,
             pointer="\u00bb",
             instruction="(type to search)",
         ).ask()
